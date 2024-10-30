@@ -23,7 +23,7 @@
             android:text="Tin nhắn sẽ hiển thị ở đây"
             android:layout_marginTop="30dp"
             android:textSize="16sp" />
-<!--        //sdfgh,-->
+
     </ScrollView>
 
 </LinearLayout>
