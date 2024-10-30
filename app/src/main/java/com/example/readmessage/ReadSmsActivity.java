@@ -36,7 +36,6 @@ public class ReadSmsActivity extends AppCompatActivity {
         }
     }
 
-    // Hàm đọc tin nhắn SMS từ thiết bị
     private void readSms() {
         ContentResolver contentResolver = getContentResolver();
         Uri smsUri = Telephony.Sms.Inbox.CONTENT_URI;
