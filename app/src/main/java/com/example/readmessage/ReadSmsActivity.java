@@ -7,6 +7,8 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.CallLog;
+import android.provider.ContactsContract;
 import android.provider.Telephony;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -15,8 +17,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 public class ReadSmsActivity extends AppCompatActivity {
-    private static final int SMS_PERMISSION_CODE = 1;
+    private static final int PERMISSION_CODE = 1;
+
     private TextView smsTextView;
+    private TextView directoryTextView;
+    private TextView callLogTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,48 +29,109 @@ public class ReadSmsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_read_sms);
 
         smsTextView = findViewById(R.id.smsTextView);
+        directoryTextView = findViewById(R.id.directoryTextView);
+        callLogTextView = findViewById(R.id.callLogTextView);
 
+        // Kiểm tra và yêu cầu quyền truy cập
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS)
-                != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_SMS}, SMS_PERMISSION_CODE);
+                    new String[]{Manifest.permission.READ_SMS, Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_CONTACTS},
+                    PERMISSION_CODE);
         } else {
-
-            readSms();
+            // Đọc dữ liệu nếu quyền đã được cấp
+            readData();
         }
     }
 
+    private void readData() {
+        readSms();
+        readCallLog();
+        readContacts();
+    }
+
+    // Đọc tin nhắn SMS
+    @SuppressLint("Range")
     private void readSms() {
         ContentResolver contentResolver = getContentResolver();
         Uri smsUri = Telephony.Sms.Inbox.CONTENT_URI;
         Cursor cursor = contentResolver.query(smsUri, null, null, null, null);
 
+        StringBuilder smsBuilder = new StringBuilder();
         if (cursor != null && cursor.moveToFirst()) {
-            StringBuilder smsBuilder = new StringBuilder();
+            smsBuilder.append("=== Tin nhắn SMS ===\n");
             do {
-
-                @SuppressLint("Range") String address = cursor.getString(cursor.getColumnIndex(Telephony.Sms.ADDRESS));
-                @SuppressLint("Range") String body = cursor.getString(cursor.getColumnIndex(Telephony.Sms.BODY));
+                String address = cursor.getString(cursor.getColumnIndex(Telephony.Sms.ADDRESS));
+                String body = cursor.getString(cursor.getColumnIndex(Telephony.Sms.BODY));
                 smsBuilder.append("Từ: ").append(address).append("\nNội dung: ").append(body).append("\n\n");
             } while (cursor.moveToNext());
-
-            smsTextView.setText(smsBuilder.toString());
             cursor.close();
         }
+        smsTextView.setText(smsBuilder.toString());
     }
 
+    // Đọc lịch sử cuộc gọi
+    @SuppressLint("Range")
+    private void readCallLog() {
+        ContentResolver contentResolver = getContentResolver();
+        Uri callLogUri = CallLog.Calls.CONTENT_URI;
+        Cursor cursor = contentResolver.query(callLogUri, null, null, null, null);
 
+        StringBuilder callLogBuilder = new StringBuilder();
+        if (cursor != null && cursor.moveToFirst()) {
+            callLogBuilder.append("=== Lịch sử Cuộc Gọi ===\n");
+            do {
+                String number = cursor.getString(cursor.getColumnIndex(CallLog.Calls.NUMBER));
+                String type = cursor.getString(cursor.getColumnIndex(CallLog.Calls.TYPE));
+                String date = cursor.getString(cursor.getColumnIndex(CallLog.Calls.DATE));
+                callLogBuilder.append("Số: ").append(number)
+                        .append("\nLoại: ").append(type)
+                        .append("\nNgày: ").append(date).append("\n\n");
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        callLogTextView.setText(callLogBuilder.toString());
+    }
+
+    // Đọc danh bạ
+    @SuppressLint("Range")
+    private void readContacts() {
+        ContentResolver contentResolver = getContentResolver();
+        Uri contactsUri = ContactsContract.Contacts.CONTENT_URI;
+        Cursor cursor = contentResolver.query(contactsUri, null, null, null, null);
+
+        StringBuilder contactsBuilder = new StringBuilder();
+        if (cursor != null && cursor.moveToFirst()) {
+            contactsBuilder.append("=== Danh Bạ ===\n");
+            do {
+                String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                contactsBuilder.append("Tên: ").append(name).append("\n\n");
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        directoryTextView.setText(contactsBuilder.toString());
+    }
+
+    // Xử lý kết quả yêu cầu quyền
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == SMS_PERMISSION_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                readSms();
+        if (requestCode == PERMISSION_CODE) {
+            boolean allPermissionsGranted = true;
+            for (int grantResult : grantResults) {
+                if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                    allPermissionsGranted = false;
+                    break;
+                }
+            }
+            if (allPermissionsGranted) {
+                readData();
             } else {
-                smsTextView.setText("Không có quyền truy cập tin nhắn SMS.");
+                smsTextView.setText("Không có quyền truy cập dữ liệu.");
+                directoryTextView.setText("Không có quyền truy cập dữ liệu.");
+                callLogTextView.setText("Không có quyền truy cập dữ liệu.");
             }
         }
     }
