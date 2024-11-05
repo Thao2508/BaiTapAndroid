@@ -4,7 +4,6 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Thông tin sinh viên -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -14,7 +13,7 @@
         android:textStyle="bold"
         android:background="@color/pink" />
 
-    <!-- ScrollView để hiển thị dữ liệu -->
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -26,7 +25,7 @@
             android:orientation="vertical"
             android:padding="10dp">
 
-            <!-- Hiển thị danh bạ -->
+
             <TextView
                 android:id="@+id/directoryTextView"
                 android:layout_width="match_parent"
@@ -38,7 +37,7 @@
                 android:textSize="16sp"
                 android:layout_marginBottom="16dp" />
 
-            <!-- Hiển thị tin nhắn -->
+
             <TextView
                 android:id="@+id/smsTextView"
                 android:layout_width="match_parent"
@@ -50,7 +49,7 @@
                 android:textSize="16sp"
                 android:layout_marginBottom="16dp" />
 
-            <!-- Hiển thị lịch sử cuộc gọi -->
+
             <TextView
                 android:id="@+id/callLogTextView"
                 android:layout_width="match_parent"

@@ -32,7 +32,7 @@ public class ReadSmsActivity extends AppCompatActivity {
         directoryTextView = findViewById(R.id.directoryTextView);
         callLogTextView = findViewById(R.id.callLogTextView);
 
-        // Kiểm tra và yêu cầu quyền truy cập
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
@@ -41,7 +41,7 @@ public class ReadSmsActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.READ_SMS, Manifest.permission.READ_CALL_LOG, Manifest.permission.READ_CONTACTS},
                     PERMISSION_CODE);
         } else {
-            // Đọc dữ liệu nếu quyền đã được cấp
+
             readData();
         }
     }
@@ -52,7 +52,7 @@ public class ReadSmsActivity extends AppCompatActivity {
         readContacts();
     }
 
-    // Đọc tin nhắn SMS
+
     @SuppressLint("Range")
     private void readSms() {
         ContentResolver contentResolver = getContentResolver();
@@ -72,7 +72,7 @@ public class ReadSmsActivity extends AppCompatActivity {
         smsTextView.setText(smsBuilder.toString());
     }
 
-    // Đọc lịch sử cuộc gọi
+
     @SuppressLint("Range")
     private void readCallLog() {
         ContentResolver contentResolver = getContentResolver();
@@ -95,7 +95,7 @@ public class ReadSmsActivity extends AppCompatActivity {
         callLogTextView.setText(callLogBuilder.toString());
     }
 
-    // Đọc danh bạ
+
     @SuppressLint("Range")
     private void readContacts() {
         ContentResolver contentResolver = getContentResolver();
@@ -114,7 +114,7 @@ public class ReadSmsActivity extends AppCompatActivity {
         directoryTextView.setText(contactsBuilder.toString());
     }
 
-    // Xử lý kết quả yêu cầu quyền
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
